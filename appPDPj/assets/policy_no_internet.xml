@@ -6,20 +6,14 @@
     xmlns:e="http://www22.in.tum.de/event" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     
-    name="custom">
-
-    <!-- Limit the number of tentatives of SMS sending to 2 -->
-    
+    name="custom">    
     <preventiveMechanism name="test3" >
-        <description>New Policy</description>
+        <description>Internet Policy</description>
         <timestep amount="500" unit="MILLISECONDS" />
-        
-        <trigger action="internet" tryEvent="true"
-        </trigger>
-        
-        <condition> 
-        </condition>
-
+        <trigger action="internet"></trigger>
+            <condition>
+                <eventMatch action="internet" tryEvent="true" ></eventMatch>
+            </condition>
         <authorizationAction name="default" >
             <inhibit />
         </authorizationAction>
