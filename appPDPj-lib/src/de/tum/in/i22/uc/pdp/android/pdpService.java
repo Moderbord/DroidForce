@@ -228,8 +228,13 @@ public class pdpService extends Service
 
       Log.d(TAG, "pdpService received message: " + counter);
       lpdp=PolicyDecisionPoint.getInstance();
-
-      Event event=reconstructEvent(msg.getData().getString("eventname"), msg);
+      Log.d("LOLO", "Message: "+ msg.toString());
+      Log.d("LOLO", "Message data: "+msg.getData());
+      
+      
+      String eventName = msg.getData().getString("eventname");
+      Log.d("LOLO", "Event Name: "+ eventName);
+      Event event=reconstructEvent(eventName, msg);
 
       Decision d=lpdp.notifyEvent(event);
 
