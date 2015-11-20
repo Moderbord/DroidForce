@@ -19,7 +19,7 @@ IMEI should not be sent to 12345        </description>
             unit="SECONDS" />
         <trigger
             action="sentTextMessage"
-            isTry="true" >
+            tryEvent="true" >
             <paramMatch
                 name="destination"
                 value="12345" />
