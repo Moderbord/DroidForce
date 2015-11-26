@@ -360,7 +360,7 @@ public class PolicyEnforcementPoint implements ResultsAvailableHandler{
 						generated.addAll(instrumentIntentAddings(cfg, stmt, invExpr, results.getResults().get(key)));
 						
 						EventInformation sinkEventInfo = allEventInformation.get(invExpr.getMethod().getSignature());
-						EventInformation sourceEventInfo = allEventInformation.get(si.getSource().getInvokeExpr().getMethod().getSignature());
+						//EventInformation sourceEventInfo = allEventInformation.get(si.getSource().getInvokeExpr().getMethod().getSignature());
 						
 						generated.addAll(generatePolicyEnforcementPoint(key.getSink(), invExpr,
 								bodyOfSink, sourceSinkConnectionCounter, assignmentStatement));
