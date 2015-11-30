@@ -2,7 +2,6 @@ package de.ecspride.pep;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -54,13 +53,13 @@ import soot.jimple.Stmt;
 import soot.jimple.StringConstant;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.android.data.AndroidMethod.CATEGORY;
-import soot.jimple.infoflow.android.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.entryPointCreators.AndroidEntryPointCreator;
 import soot.jimple.infoflow.handlers.ResultsAvailableHandler;
 import soot.jimple.infoflow.results.InfoflowResults;
 import soot.jimple.infoflow.results.ResultSinkInfo;
 import soot.jimple.infoflow.results.ResultSourceInfo;
 import soot.jimple.infoflow.solver.cfg.IInfoflowCFG;
+import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.util.MultiMap;
 import de.ecspride.Main;
@@ -131,8 +130,8 @@ public class PolicyEnforcementPoint implements ResultsAvailableHandler{
 		log.info("Adding code to initialize PEPs.");
 		Util.initializePePInAllPossibleClasses(Settings.instance.getApkPath());
 		
-		log.info("Redirect main activity");
-		String mainActivityClass = UpdateManifestAndCodeForWaitPDP.redirectMainActivity(Settings.instance.getApkPath());
+		log.info("Build code for new 'WaitPDPActivity"); // building the code has to be done here (not in the Main class, otherwise Jimple validation will fail
+		String mainActivityClass = UpdateManifestAndCodeForWaitPDP.getMainActivityName(Settings.instance.getApkPath());
 		UpdateManifestAndCodeForWaitPDP.updateWaitPDPActivity(mainActivityClass);
 		
 		log.info("Adding Policy Enforcement Points (PEPs).");
@@ -360,6 +359,14 @@ public class PolicyEnforcementPoint implements ResultsAvailableHandler{
 						generated.addAll(instrumentIntentAddings(cfg, stmt, invExpr, results.getResults().get(key)));
 						
 						EventInformation sinkEventInfo = allEventInformation.get(invExpr.getMethod().getSignature());
+
+						// TODO: write code to handle cases where Intent is given as a parameter to a component method
+						// such as Service.onStartCommand(Intent i, ...)
+						if (!si.getSource().containsInvokeExpr()) {
+							System.out.println("WARNING: skipping source with no invoke expression: "+ si.getSource());
+							continue; // next source
+						}
+
 						EventInformation sourceEventInfo = allEventInformation.get(si.getSource().getInvokeExpr().getMethod().getSignature());
 						
 						generated.addAll(generatePolicyEnforcementPoint(key.getSink(), invExpr,
