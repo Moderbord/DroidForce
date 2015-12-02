@@ -130,8 +130,8 @@ public class PolicyEnforcementPoint implements ResultsAvailableHandler{
 		log.info("Adding code to initialize PEPs.");
 		Util.initializePePInAllPossibleClasses(Settings.instance.getApkPath());
 		
-		log.info("Redirect main activity");
-		String mainActivityClass = UpdateManifestAndCodeForWaitPDP.redirectMainActivity(Settings.instance.getApkPath());
+		log.info("Build code for new 'WaitPDPActivity"); // building the code has to be done here (not in the Main class, otherwise Jimple validation will fail
+		String mainActivityClass = UpdateManifestAndCodeForWaitPDP.getMainActivityName(Settings.instance.getApkPath());
 		UpdateManifestAndCodeForWaitPDP.updateWaitPDPActivity(mainActivityClass);
 		
 		log.info("Adding Policy Enforcement Points (PEPs).");
@@ -359,6 +359,14 @@ public class PolicyEnforcementPoint implements ResultsAvailableHandler{
 						generated.addAll(instrumentIntentAddings(cfg, stmt, invExpr, results.getResults().get(key)));
 						
 						EventInformation sinkEventInfo = allEventInformation.get(invExpr.getMethod().getSignature());
+
+						// TODO: write code to handle cases where Intent is given as a parameter to a component method
+						// such as Service.onStartCommand(Intent i, ...)
+						if (!si.getSource().containsInvokeExpr()) {
+							System.out.println("WARNING: skipping source with no invoke expression: "+ si.getSource());
+							continue; // next source
+						}
+
 						EventInformation sourceEventInfo = allEventInformation.get(si.getSource().getInvokeExpr().getMethod().getSignature());
 						
 						generated.addAll(generatePolicyEnforcementPoint(key.getSink(), invExpr,
